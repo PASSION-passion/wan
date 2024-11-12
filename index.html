@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>抽奖转盘</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 5px solid #ddd;
+            margin: 20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            background-color: #f3f3f3;
+            border: 2px solid #ccc;
+            clip-path: polygon(0 0, 100% 0, 50% 100%);
+            transform-origin: 100% 100%;
+        }
+        #pointer {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid red;
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <h1>输入姓名并点击按钮抽奖</h1>
+    <input type="text" id="nameInput" placeholder="请输入姓名">
+    <button onclick="startSpin()">开始抽奖</button>
+
+    <div id="output"></div>
+    <div id="pointer"></div>
+    <div id="wheel"></div>
+
+    <script>
+        const prizes = ["三只松鼠大礼包", "保温杯", "自行车", "", "强哥的吻", "再抽一次"];
+        
+        function setupWheel() {
+            const wheel = document.getElementById("wheel");
+            wheel.innerHTML = "";  // 清空之前的内容
+            const randomPrizes = [...prizes];
+            randomPrizes[1] = "奖项" + Math.floor(Math.random() * 100 + 1);
+            randomPrizes[2] = "奖项" + Math.floor(Math.random() * 100 + 1);
+            randomPrizes[3] = "奖项" + Math.floor(Math.random() * 100 + 1);
+            randomPrizes[4] = "奖项" + Math.floor(Math.random() * 100 + 1);
+            randomPrizes[5] = "奖项" + Math.floor(Math.random() * 100 + 1);
+
+            // 创建6个分段
+            for (let i = 0; i < 6; i++) {
+                const segment = document.createElement("div");
+                segment.className = "segment";
+                segment.style.transform = `rotate(${i * 60}deg)`;
+                segment.style.backgroundColor = `hsl(${(i * 60)}, 70%, 70%)`; // 彩色分段
+                const text = document.createElement("span");
+                text.style.position = "absolute";
+                text.style.top = "40%";
+                text.style.left = "80%";
+                text.style.transform = "rotate(30deg)";
+                text.style.color = "black";
+                text.innerHTML = randomPrizes[i];
+                segment.appendChild(text);
+                wheel.appendChild(segment);
+            }
+        }
+
+        function startSpin() {
+            const name = document.getElementById("nameInput").value;
+            if (!name) {
+                document.getElementById("output").innerText = "请输入姓名！";
+                return;
+            }
+            document.getElementById("output").innerText = `抽奖中，${name}祝你好运！`;
+            setupWheel();
+            
+            const wheel = document.getElementById("wheel");
+            let angle = 0;
+            const totalSpins = 5 * 360; // 转10圈
+            const finalAngle = totalSpins + Math.floor(Math.random() * 360); // 随机的最终停止角度
+
+            const spinInterval = setInterval(() => {
+                angle += 10;
+                wheel.style.transform = `rotate(${angle}deg)`;
+                if (angle >= finalAngle) {
+                    clearInterval(spinInterval);
+                    const selectedSegment = Math.floor(((360 - (finalAngle % 360)) % 360) / 60);
+                    document.getElementById("output").innerText = `恭喜${name}，你获得了${prizes[selectedSegment]}！`;
+                }
+            }, 20);
+        }
+
+        setupWheel();
+    </script>
+</body>
+</html>
